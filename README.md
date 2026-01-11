@@ -7,12 +7,14 @@ Raspberry Pi Zero-basierte Status-Anzeige zur Überwachung des Teltonika RUT241 
 - ✅ **Vollständig implementiert und einsatzbereit**
 - 📡 Echtzeit-SNMP-Überwachung des RUT241 LTE-Router-Status
 - 📊 Anzeige von Signalstärke (RSSI, RSRP, RSRQ, SINR), Netzwerktyp, Operator und Verbindungsstatus
+- 🎛️ **KY040 Rotary Encoder Navigation** - Drehen & Drücken für Menü-Navigation
+- 📺 **Multi-Screen Menü-System** - Verschiedene Ansichten (Status, Signal, Netzwerk, System, Einstellungen)
 - 🖥️ Optimiert für Raspberry Pi Zero (minimaler Ressourcenverbrauch)
 - 🔒 Sicherheitsorientiertes Dependency-Management
 - 🧪 Test-Tools für SNMP ohne Display-Hardware
 - ⚙️ Automatisches Installations-Script
 - 🔄 Systemd-Service für Autostart
-- 📝 Umfassende Dokumentation
+- 📝 Umfassende Dokumentation inkl. Verkabelungsanleitung
 
 ## 🚀 Schnellstart (Automatische Installation)
 
@@ -137,7 +139,10 @@ LTE_Rack_OLED/
 │   ├── __init__.py              # Modul-Initialisierung
 │   ├── snmp_client.py           # SNMP Client für RUT241
 │   ├── display_handler.py       # OLED Display Handler
-│   └── main.py                  # Hauptanwendung (ausführbar)
+│   ├── rotary_encoder.py        # KY040 Rotary Encoder Treiber
+│   ├── menu_system.py           # Menü-System mit Multi-Screen
+│   ├── main.py                  # Hauptanwendung (ohne Menü)
+│   └── main_with_menu.py        # Hauptanwendung (mit KY040 Menü)
 ├── requirements.txt              # Produktions-Abhängigkeiten (Standard)
 ├── requirements-performance.txt  # Performance-optimiert (Alternative)
 ├── requirements-dev.txt          # Entwicklungs-Tools
@@ -148,8 +153,37 @@ LTE_Rack_OLED/
 ├── .gitignore                   # Git ignore Regeln
 ├── DEPENDENCY_ANALYSIS.md       # Detaillierte Abhängigkeits-Analyse
 ├── USAGE.md                     # Umfassende Verwendungsanleitung
+├── WIRING.md                    # Verkabelungsanleitung (Display & Encoder)
 └── README.md                    # Diese Datei
 ```
+
+## 🔌 Hardware-Verkabelung
+
+### Waveshare 2.23" OLED Display
+
+| Display Pin | Pi Pin | GPIO | Beschreibung |
+|-------------|--------|------|--------------|
+| VCC | 1 | 3.3V | Stromversorgung |
+| GND | 6 | GND | Masse |
+| DIN | 19 | GPIO 10 (MOSI) | Daten |
+| CLK | 23 | GPIO 11 (SCLK) | Clock |
+| CS | 24 | GPIO 8 (CE0) | Chip Select |
+| DC | 18 | GPIO 24 | Data/Command |
+| RST | 22 | GPIO 25 | Reset |
+
+### KY040 Rotary Encoder
+
+| Encoder Pin | Pi Pin | GPIO | Beschreibung |
+|-------------|--------|------|--------------|
+| + | 1 | 3.3V | Stromversorgung |
+| GND | 9 | GND | Masse |
+| CLK | 11 | GPIO 17 | Clock Signal |
+| DT | 13 | GPIO 27 | Data Signal |
+| SW | 15 | GPIO 22 | Button |
+
+**Hinweis:** Die Encoder GPIO-Pins sind über `config.env` konfigurierbar!
+
+**Detaillierte Verkabelungsanleitung:** Siehe [WIRING.md](WIRING.md)
 
 ## 🎯 Verwendung
 
@@ -169,12 +203,24 @@ Das Test-Script bietet ein interaktives Menü mit verschiedenen Test-Optionen.
 
 ### 2. Hauptanwendung starten
 
-Mit OLED-Display:
+**Mit OLED-Display (ohne Menü):**
 
 ```bash
 source venv/bin/activate
 python3 src/main.py
 ```
+
+**Mit OLED-Display und KY040 Menü-Navigation:**
+
+```bash
+source venv/bin/activate
+python3 src/main_with_menu.py
+```
+
+**Bedienung KY040:**
+- 🔄 **Drehen**: Navigation durch Menüs/Screens
+- ⏺️ **Kurz drücken**: Menü öffnen / Auswahl bestätigen
+- ⏱️ **Lang drücken** (1 Sekunde): Zurück zur Status-Übersicht
 
 ### 3. Als Systemd-Service (Autostart)
 
