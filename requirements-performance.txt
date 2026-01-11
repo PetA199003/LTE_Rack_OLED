@@ -1,0 +1,16 @@
+# Performance-Optimized Dependencies
+# Alternative to requirements.txt for resource-constrained environments
+# Uses easysnmp (C-based, faster, lower memory footprint)
+
+# System requirement: sudo apt-get install libsnmp-dev
+
+# High-performance SNMP Client
+easysnmp==0.2.6
+
+# OLED Display Driver
+Pillow==10.2.0
+luma.oled==3.13.0
+
+# Low-level I2C/SPI communication
+smbus2==0.4.3
+spidev==3.6
