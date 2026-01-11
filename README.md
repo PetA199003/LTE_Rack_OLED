@@ -1,52 +1,82 @@
 # LTE Rack OLED Display
 
-Raspberry Pi Zero-based status display for monitoring RUT241 LTE router via SNMP on a 2.23" Waveshare OLED display.
+Raspberry Pi Zero-basierte Status-Anzeige zur Überwachung des Teltonika RUT241 LTE-Routers per SNMP auf einem 2.23" Waveshare OLED-Display.
 
-## Features
+## ✨ Features
 
-- Real-time SNMP monitoring of LTE router status
-- Displays signal strength, network type, operator, and connection state
-- Optimized for Raspberry Pi Zero (minimal resource usage)
-- Security-focused dependency management
-- Support for SNMP v2c and v3
+- ✅ **Vollständig implementiert und einsatzbereit**
+- 📡 Echtzeit-SNMP-Überwachung des RUT241 LTE-Router-Status
+- 📊 Anzeige von Signalstärke (RSSI, RSRP, RSRQ, SINR), Netzwerktyp, Operator und Verbindungsstatus
+- 🖥️ Optimiert für Raspberry Pi Zero (minimaler Ressourcenverbrauch)
+- 🔒 Sicherheitsorientiertes Dependency-Management
+- 🧪 Test-Tools für SNMP ohne Display-Hardware
+- ⚙️ Automatisches Installations-Script
+- 🔄 Systemd-Service für Autostart
+- 📝 Umfassende Dokumentation
 
-## Quick Start
+## 🚀 Schnellstart (Automatische Installation)
 
-### Prerequisites
+### Einfachste Methode
 
 ```bash
-# Update system
+# Repository klonen
+git clone <your-repo-url>
+cd LTE_Rack_OLED
+
+# Automatisches Installations-Script ausführen
+chmod +x install.sh
+./install.sh
+
+# Konfiguration anpassen
+nano config.env
+
+# SNMP-Verbindung testen (ohne Display)
+source venv/bin/activate
+python3 test_snmp.py
+
+# Hauptanwendung starten
+python3 src/main.py
+```
+
+Das war's! Das Script installiert automatisch alle Abhängigkeiten, erstellt das Virtual Environment und kann optional einen Systemd-Service einrichten.
+
+## 📋 Manuelle Installation
+
+### Voraussetzungen
+
+```bash
+# System aktualisieren
 sudo apt-get update && sudo apt-get upgrade -y
 
-# Install system dependencies
+# System-Abhängigkeiten installieren
 sudo apt-get install -y python3 python3-pip python3-venv i2c-tools
 
-# Enable I2C interface
+# I2C-Schnittstelle aktivieren
 sudo raspi-config
-# Navigate to: Interface Options -> I2C -> Enable
+# Navigieren zu: Interface Options -> I2C -> Enable
 ```
 
 ### Installation
 
 ```bash
-# Clone repository
+# Repository klonen
 git clone <your-repo-url>
 cd LTE_Rack_OLED
 
-# Create virtual environment
+# Virtual Environment erstellen
 python3 -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# Abhängigkeiten installieren
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Configure application
+# Anwendung konfigurieren
 cp config.env.example config.env
-nano config.env  # Edit with your settings
+nano config.env  # Mit Ihren Einstellungen bearbeiten
 ```
 
-### Alternative: Performance-Optimized Installation
+### Alternative: Performance-optimierte Installation
 
 For better performance on Pi Zero (lower memory, faster execution):
 
@@ -99,18 +129,81 @@ pip install --upgrade pip-audit
 pip-audit
 ```
 
-## Project Structure
+## 📦 Projekt-Struktur
 
 ```
 LTE_Rack_OLED/
-├── requirements.txt              # Production dependencies (standard)
-├── requirements-performance.txt  # Performance-optimized (alternative)
-├── requirements-dev.txt          # Development tools
-├── config.env.example            # Configuration template
+├── src/
+│   ├── __init__.py              # Modul-Initialisierung
+│   ├── snmp_client.py           # SNMP Client für RUT241
+│   ├── display_handler.py       # OLED Display Handler
+│   └── main.py                  # Hauptanwendung (ausführbar)
+├── requirements.txt              # Produktions-Abhängigkeiten (Standard)
+├── requirements-performance.txt  # Performance-optimiert (Alternative)
+├── requirements-dev.txt          # Entwicklungs-Tools
+├── config.env.example            # Konfigurations-Vorlage
+├── test_snmp.py                 # SNMP Test-Tool (ohne Display)
+├── install.sh                   # Automatisches Installations-Script
 ├── .python-version              # Python 3.11.7
-├── .gitignore                   # Git ignore rules
-├── DEPENDENCY_ANALYSIS.md       # Detailed dependency audit
-└── README.md                    # This file
+├── .gitignore                   # Git ignore Regeln
+├── DEPENDENCY_ANALYSIS.md       # Detaillierte Abhängigkeits-Analyse
+├── USAGE.md                     # Umfassende Verwendungsanleitung
+└── README.md                    # Diese Datei
+```
+
+## 🎯 Verwendung
+
+### 1. SNMP-Verbindung testen (ohne Display)
+
+Ideal zum Debuggen oder wenn kein Display angeschlossen ist:
+
+```bash
+source venv/bin/activate
+python3 test_snmp.py
+
+# Oder mit spezifischen Parametern:
+python3 test_snmp.py 192.168.1.1 public
+```
+
+Das Test-Script bietet ein interaktives Menü mit verschiedenen Test-Optionen.
+
+### 2. Hauptanwendung starten
+
+Mit OLED-Display:
+
+```bash
+source venv/bin/activate
+python3 src/main.py
+```
+
+### 3. Als Systemd-Service (Autostart)
+
+Wenn während der Installation aktiviert:
+
+```bash
+# Service starten
+sudo systemctl start lte-rack-oled
+
+# Service-Status prüfen
+sudo systemctl status lte-rack-oled
+
+# Logs ansehen
+sudo journalctl -u lte-rack-oled -f
+```
+
+### 4. In eigenem Code verwenden
+
+```python
+from src.snmp_client import RUT241SNMPClient
+
+# SNMP Client erstellen
+client = RUT241SNMPClient(host='192.168.1.1', community='public')
+
+# Status abrufen
+status = client.get_all_status()
+print(f"Signalstärke: {status['signal_strength']} dBm")
+print(f"Operator: {status['operator']}")
+print(f"Netzwerk: {status['network_type']}")
 ```
 
 ## Configuration
@@ -195,10 +288,52 @@ For best performance on Raspberry Pi Zero:
 3. Set appropriate update intervals (5-10 seconds recommended)
 4. Consider using systemd service with resource limits
 
-## Documentation
+## 📚 Dokumentation
 
-For detailed dependency analysis, security considerations, and architectural decisions, see:
-- [DEPENDENCY_ANALYSIS.md](DEPENDENCY_ANALYSIS.md) - Complete dependency audit and recommendations
+Umfassende Dokumentation für alle Aspekte des Projekts:
+
+- **[README.md](README.md)** (diese Datei) - Übersicht und Schnellstart
+- **[USAGE.md](USAGE.md)** - Detaillierte Verwendungsanleitung
+  - Alle Verwendungsmöglichkeiten
+  - Modul-Dokumentation
+  - OID-Referenz für RUT241
+  - Troubleshooting-Guide
+  - Tipps & Tricks
+- **[DEPENDENCY_ANALYSIS.md](DEPENDENCY_ANALYSIS.md)** - Abhängigkeits-Analyse
+  - Vollständige Sicherheitsanalyse
+  - Bloat-Vermeidung
+  - Update-Strategien
+  - Performance-Optimierung
+
+## 🔧 Module
+
+### snmp_client.py
+SNMP Client für Teltonika RUT241 mit Unterstützung für alle wichtigen OIDs:
+- Signalstärke (RSSI, RSRP, RSRQ, SINR)
+- Netzwerktyp, Operator, Verbindungsstatus
+- System-Informationen
+- Formatierte Ausgabe
+
+### display_handler.py
+OLED Display Handler für Waveshare 2.23" Display:
+- Grafische Signalbalken
+- Mehrere Informationen gleichzeitig
+- Fehlerbehandlung
+- Console-Fallback ohne Hardware
+
+### main.py
+Hauptanwendung mit kontinuierlichem Monitoring:
+- Konfigurierbares Update-Intervall
+- Verbindungstest beim Start
+- Automatische Fehlerbehandlung
+- Systemd-Service-kompatibel
+
+### test_snmp.py
+Interaktives Test-Tool ohne Display-Hardware:
+- Menü-gesteuerte Tests
+- Alle OIDs testen
+- Eigene OIDs ausprobieren
+- Ideal zum Debuggen
 
 ## License
 
@@ -221,7 +356,7 @@ For issues related to:
 
 ---
 
-**Last Updated**: 2026-01-11
-**Target Platform**: Raspberry Pi Zero W/WH
-**Python Version**: 3.11.7
-**Status**: Ready for implementation
+**Letzte Aktualisierung**: 2026-01-11
+**Ziel-Platform**: Raspberry Pi Zero W/WH
+**Python-Version**: 3.11.7
+**Status**: ✅ Vollständig implementiert und einsatzbereit
