@@ -141,7 +141,7 @@ class OLEDDisplay:
 
                 # Zeile 4: Signal-Balken und RSSI
                 rssi = status.get('signal_strength')
-                self.draw_signal_bars(draw, 2, 32)
+                self.draw_signal_bars(draw, 2, 32, rssi)
                 if rssi is not None:
                     draw.text((40, 32), f"{rssi} dBm", fill="white")
                 else:
