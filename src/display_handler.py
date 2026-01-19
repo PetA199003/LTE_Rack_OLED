@@ -47,8 +47,9 @@ class OLEDDisplay:
         try:
             # SPI-Verbindung initialisieren
             # Waveshare 2.23" OLED verwendet SSD1305 Controller
-            serial = spi(device=0, port=0)
-            self.device = ssd1305(serial, width=width, height=height)
+            # Mit expliziten GPIO-Pins für DC und RST
+            serial = spi(device=0, port=0, gpio_DC=24, gpio_RST=25)
+            self.device = ssd1305(serial, width=width, height=height, rotate=0)
             logger.info(f"OLED Display initialisiert ({width}x{height})")
         except Exception as e:
             logger.error(f"Fehler beim Initialisieren des Displays: {e}")
